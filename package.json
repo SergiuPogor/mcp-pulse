@@ -2,12 +2,12 @@
   "name": "mcp-pulse",
   "version": "1.0.0",
   "description": "Real-time monitoring & observability dashboard for Model Context Protocol (MCP) servers",
-  "author": "Phantom Fall Studios",
+  "author": "Sergiu Pogor",
   "license": "MIT",
-  "homepage": "https://github.com/phantomfallstudios/mcp-pulse",
+  "homepage": "https://github.com/SergiuPogor/mcp-pulse",
   "repository": {
     "type": "git",
-    "url": "https://github.com/phantomfallstudios/mcp-pulse.git"
+    "url": "https://github.com/SergiuPogor/mcp-pulse.git"
   },
   "keywords": [
     "mcp",

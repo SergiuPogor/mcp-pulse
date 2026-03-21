@@ -12,7 +12,7 @@
 
 <div align="center">
 
-![mcp-pulse](https://raw.githubusercontent.com/phantomfallstudios/mcp-pulse/main/docs/mcp-pulse.gif)
+![mcp-pulse](https://raw.githubusercontent.com/SergiuPogor/mcp-pulse/main/docs/mcp-pulse.gif)
 
 *Live dashboard with real-time metrics, call traces, and alerting*
 
@@ -95,12 +95,12 @@ http://localhost:3000
 # Run dashboard
 docker run -p 3000:3000 -p 3100:3100 \
   --env MCP_PULSE_PORT=3100 \
-  phantomfallstudios/mcp-pulse:latest
+  SergiuPogor/mcp-pulse:latest
 
 # Proxy an MCP server inside Docker
 docker run -p 3100:3100 \
   --env MCP_PULSE_TARGET=http://your-server:3001 \
-  phantomfallstudios/mcp-pulse:latest proxy
+  SergiuPogor/mcp-pulse:latest proxy
 ```
 
 ---
@@ -430,7 +430,7 @@ Contributions are welcome! Please read our [Contributing Guide](CONTRIBUTING.md)
 
 ```bash
 # Development setup
-git clone https://github.com/phantomfallstudios/mcp-pulse.git
+git clone https://github.com/SergiuPogor/mcp-pulse.git
 cd mcp-pulse
 npm install
 npm run dev          # Watch mode + hot reload
@@ -440,7 +440,7 @@ npm run lint         # Lint + format
 
 ### Reporting Issues
 
-Please report bugs and feature requests via [GitHub Issues](https://github.com/phantomfallstudios/mcp-pulse/issues). Include:
+Please report bugs and feature requests via [GitHub Issues](https://github.com/SergiuPogor/mcp-pulse/issues). Include:
 - mcp-pulse version (`mcp-pulse --version`)
 - Node.js version (`node --version`)
 - MCP server name and version
@@ -450,7 +450,7 @@ Please report bugs and feature requests via [GitHub Issues](https://github.com/p
 
 ## 📄 License
 
-MIT © 2026 [Phantom Fall Studios](https://github.com/phantomfallstudios)
+MIT © 2026 [Sergiu Pogor](https://github.com/SergiuPogor)
 
 ---
 
@@ -458,6 +458,6 @@ MIT © 2026 [Phantom Fall Studios](https://github.com/phantomfallstudios)
 
 **Star it if you find it useful.**
 
-[![Star](https://img.shields.io/github/stars/phantomfallstudios/mcp-pulse?style=social)](https://github.com/phantomfallstudios/mcp-pulse)
+[![Star](https://img.shields.io/github/stars/SergiuPogor/mcp-pulse?style=social)](https://github.com/SergiuPogor/mcp-pulse)
 
 </div>

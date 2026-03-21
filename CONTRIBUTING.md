@@ -5,7 +5,7 @@ We welcome contributions of all kinds — bug fixes, features, documentation imp
 ## Development Setup
 
 ```bash
-git clone https://github.com/phantomfallstudios/mcp-pulse.git
+git clone https://github.com/SergiuPogor/mcp-pulse.git
 cd mcp-pulse
 npm install
 npm run dev   # Start in watch mode
