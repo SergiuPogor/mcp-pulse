@@ -5,7 +5,7 @@
  * extracts structured call data, and forwards events to the dashboard.
  */
 
-import { createServer, Server, request as httpRequest } from 'http';
+import { createServer, Server, request as httpRequest, type ClientRequest } from 'http';
 import { parse } from 'url';
 import type { IncomingMessage, ServerResponse } from 'http';
 import { WebSocketServer, WebSocket } from 'ws';
@@ -38,7 +38,7 @@ export class ProxyServer {
   private dashboardWs: WebSocket | null = null;
   private pendingCalls = new Map<string, PendingCall>();
   private connectedClients = new Set<WebSocket>();
-  private mcpServerConn: { req: IncomingMessage; res: ServerResponse } | null = null;
+  private mcpServerConn: { req: ClientRequest; res: ServerResponse } | null = null;
 
   constructor(
     private store: PulseStore,
@@ -95,7 +95,7 @@ export class ProxyServer {
 
   private async handleSSEClient(req: IncomingMessage, res: ServerResponse): Promise<void> {
     // Track connected MCP clients (browsers, Claude, etc.)
-    const clientWs = this.upgradeToWebSocket(req, res);
+    const clientWs = this.upgradeToWebSocket(req);
     if (!clientWs) {
       // Not a WebSocket upgrade — treat as SSE
       this.setupSSEClient(req, res);
@@ -139,7 +139,7 @@ export class ProxyServer {
     this.connectToUpstream().catch(console.error);
   }
 
-  private upgradeToWebSocket(req: IncomingMessage, res: ServerResponse): WebSocket | null {
+  private upgradeToWebSocket(req: IncomingMessage): WebSocket | null {
     const key = req.headers['sec-websocket-key'];
     if (!key) return null;
 

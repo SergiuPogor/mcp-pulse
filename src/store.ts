@@ -35,14 +35,10 @@ export class PulseStore {
   private calls = new Map<string, MCPCall>();
   private servers = new Map<string, MCPServer>();
   private alerts: Alert[] = [];
-  private timeseries: TimeSeriesPoint[] = [];
   private seq = 0;
   private alertCooldowns = new Map<string, number>(); // alertId → last fired timestamp
 
-  constructor(
-    private retentionHours = 24,
-    private maxCalls = 100_000,
-  ) {}
+  constructor(private maxCalls = 100_000) {}
 
   // ─── Servers ────────────────────────────────────────────────────────────
 
@@ -287,7 +283,7 @@ export class PulseStore {
   }
 
   private updateTimeseries(): void {
-    this.timeseries = this.getTimeseries(60);
+    // recomputed on demand — no need to store
   }
 
   private trim(): void {

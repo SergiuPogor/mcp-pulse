@@ -2,20 +2,17 @@
  * mcp-pulse: Dashboard HTTP + WebSocket Server
  */
 
-import express, { Request, Response, NextFunction } from 'express';
+import express from 'express';
 import { createServer } from 'http';
 import { WebSocketServer, WebSocket } from 'ws';
 import type { Server } from 'http';
 import { AddressInfo } from 'net';
 import { PulseStore } from './store.js';
-import { createProxyMiddleware } from 'http-proxy-middleware';
-import type { MCPServer, WSEvent, AlertConfig, APIResponse, MetricsSummary, TimeSeriesPoint, MCPCall } from './types.js';
-import { readFileSync, existsSync } from 'fs';
+import type { AlertConfig, WSEvent } from './types.js';
+import { existsSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
-import { load } from 'dotenv';
-
-load();
+import 'dotenv/config';
 
 // ─── Dashboard Server ──────────────────────────────────────────────────────
 
@@ -54,7 +51,8 @@ export class Dashboard {
       this.app.use((req, res, next) => {
         const token = req.headers['x-api-token'] as string ?? req.query['token'] as string;
         if (token !== this.authToken) {
-          return res.status(401).json({ ok: false, error: 'Unauthorized' });
+          res.status(401).json({ ok: false, error: 'Unauthorized' });
+          return;
         }
         next();
       });
@@ -135,7 +133,7 @@ export class Dashboard {
 
     this.app.get(`${api}/calls/:id`, (req, res) => {
       const call = this.store.getCall(req.params['id']!);
-      if (!call) return res.status(404).json({ ok: false, error: 'Not found' });
+      if (!call) { res.status(404).json({ ok: false, error: 'Not found' }); return; }
       res.json({ ok: true, data: call });
     });
 

@@ -100,13 +100,12 @@ program
   .option('--max-calls <n>', 'Maximum calls to retain in memory', '100000')
   .action(async (opts) => {
     printBanner();
-    const config = loadConfig();
-    const port = parseInt(opts.port);
+    const port = parseInt(opts.port as string);
     const host = opts.public ? '0.0.0.0' : opts.host;
-    const retention = parseInt(opts.retention);
-    const maxCalls = parseInt(opts.maxCalls);
+    const maxCalls = parseInt(opts.maxCalls as string);
+    const config = loadConfig();
 
-    const store = new PulseStore(retention, maxCalls);
+    const store = new PulseStore(maxCalls);
     const dashboard = new Dashboard({
       port,
       host,
@@ -148,7 +147,7 @@ program
     printBanner();
     const config = loadConfig();
 
-    const store = new PulseStore(config.dashboard.retention.hours, config.dashboard.retention.maxCalls);
+    const store = new PulseStore(config.dashboard.retention.maxCalls);
     const proxy = new ProxyServer(store, {
       targetUrl: opts.target,
       listenPort: parseInt(opts.port),
@@ -196,7 +195,7 @@ program
 
     const checkAlerts = async () => {
       try {
-        const res = await fetch(`${opts.dashboard}/api/metrics`).then(r => r.json());
+        const res = await fetch(`${opts.dashboard}/api/metrics`).then(r => r.json()) as { ok: boolean; data: { errorRate: number } };
         if (!res.ok) return;
         const m = res.data;
         if (m.errorRate >= threshold) {
