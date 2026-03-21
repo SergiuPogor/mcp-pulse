@@ -1,279 +1,442 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>mcp-pulse — Real-time MCP Observability</title>
-  <meta name="description" content="Real-time monitoring dashboard for Model Context Protocol servers">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./styles/main.css">
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%230a0a0f'/><circle cx='16' cy='16' r='8' fill='none' stroke='%233b82f6' stroke-width='2'/><circle cx='16' cy='16' r='3' fill='%233b82f6'/><line x1='16' y1='4' x2='16' y2='8' stroke='%233b82f6' stroke-width='2'/><line x1='16' y1='24' x2='16' y2='28' stroke='%233b82f6' stroke-width='2'/><line x1='4' y1='16' x2='8' y2='16' stroke='%233b82f6' stroke-width='2'/><line x1='24' y1='16' x2='28' y2='16' stroke='%233b82f6' stroke-width='2'/></svg>">
-</head>
-<body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>mcp-pulse — Real-time MCP Observability</title>
+    <meta
+      name="description"
+      content="Real-time monitoring dashboard for Model Context Protocol servers"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles/main.css" />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%230a0a0f'/><circle cx='16' cy='16' r='8' fill='none' stroke='%233b82f6' stroke-width='2'/><circle cx='16' cy='16' r='3' fill='%233b82f6'/><line x1='16' y1='4' x2='16' y2='8' stroke='%233b82f6' stroke-width='2'/><line x1='16' y1='24' x2='16' y2='28' stroke='%233b82f6' stroke-width='2'/><line x1='4' y1='16' x2='8' y2='16' stroke='%233b82f6' stroke-width='2'/><line x1='24' y1='16' x2='28' y2='16' stroke='%233b82f6' stroke-width='2'/></svg>"
+    />
+  </head>
+  <body>
+    <!-- Ambient background -->
+    <div class="bg-grid"></div>
+    <div class="bg-glow"></div>
 
-<!-- Ambient background -->
-<div class="bg-grid"></div>
-<div class="bg-glow"></div>
-
-<!-- Sidebar -->
-<aside class="sidebar" id="sidebar">
-  <div class="sidebar-header">
-    <div class="logo">
-      <div class="logo-icon">
-        <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
-          <circle cx="16" cy="16" r="8" stroke="#3b82f6" stroke-width="2"/>
-          <circle cx="16" cy="16" r="3" fill="#3b82f6"/>
-          <line x1="16" y1="4" x2="16" y2="8" stroke="#3b82f6" stroke-width="2" stroke-linecap="round"/>
-          <line x1="16" y1="24" x2="16" y2="28" stroke="#3b82f6" stroke-width="2" stroke-linecap="round"/>
-          <line x1="4" y1="16" x2="8" y2="16" stroke="#3b82f6" stroke-width="2" stroke-linecap="round"/>
-          <line x1="24" y1="16" x2="28" y2="16" stroke="#3b82f6" stroke-width="2" stroke-linecap="round"/>
-        </svg>
-      </div>
-      <div class="logo-text">
-        <span class="logo-name">mcp-pulse</span>
-        <span class="logo-tagline">MCP Observability</span>
-      </div>
-    </div>
-    <div class="connection-status" id="connectionStatus">
-      <span class="status-dot" id="statusDot"></span>
-      <span class="status-text" id="statusText">Connecting...</span>
-    </div>
-  </div>
-
-  <nav class="sidebar-nav">
-    <button class="nav-item active" data-view="overview">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>
-      Overview
-    </button>
-    <button class="nav-item" data-view="calls">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
-      Live Calls
-      <span class="nav-badge" id="callsBadge">0</span>
-    </button>
-    <button class="nav-item" data-view="servers">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="6" rx="1"/><rect x="2" y="15" width="20" height="6" rx="1"/><circle cx="6" cy="6" r="1" fill="currentColor"/><circle cx="6" cy="18" r="1" fill="currentColor"/></svg>
-      Servers
-      <span class="nav-badge" id="serversBadge">0</span>
-    </button>
-    <button class="nav-item" data-view="alerts">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
-      Alerts
-      <span class="nav-badge nav-badge-alert" id="alertsBadge">0</span>
-    </button>
-  </nav>
-
-  <div class="sidebar-footer">
-    <div class="uptime-block">
-      <span class="uptime-label">Uptime</span>
-      <span class="uptime-value" id="uptimeValue">--:--:--</span>
-    </div>
-    <div class="version">mcp-pulse v1.0.0</div>
-  </div>
-</aside>
-
-<!-- Main content -->
-<main class="main-content" id="mainContent">
-
-  <!-- ── Overview View ───────────────────────────────────────────── -->
-  <div class="view view-overview" id="viewOverview">
-
-    <!-- Metric Cards Row -->
-    <div class="metrics-row">
-      <div class="metric-card" id="metricTotalCalls">
-        <div class="metric-icon metric-icon-calls">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-        </div>
-        <div class="metric-body">
-          <div class="metric-label">Total Calls</div>
-          <div class="metric-value" id="totalCallsValue">0</div>
-          <div class="metric-sub" id="callsPerMin">0/min</div>
-        </div>
-      </div>
-
-      <div class="metric-card" id="metricErrorRate">
-        <div class="metric-icon metric-icon-errors">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-        </div>
-        <div class="metric-body">
-          <div class="metric-label">Error Rate</div>
-          <div class="metric-value" id="errorRateValue">0%</div>
-          <div class="metric-sub" id="totalErrorsValue">0 errors</div>
-        </div>
-        <div class="metric-sparkline" id="errorSparkline"></div>
-      </div>
-
-      <div class="metric-card" id="metricLatency">
-        <div class="metric-icon metric-icon-latency">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-        </div>
-        <div class="metric-body">
-          <div class="metric-label">Avg Latency</div>
-          <div class="metric-value" id="avgLatencyValue">0ms</div>
-          <div class="metric-sub" id="p99Latency">P99: 0ms</div>
-        </div>
-      </div>
-
-      <div class="metric-card" id="metricServers">
-        <div class="metric-icon metric-icon-servers">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="6" rx="1"/><rect x="2" y="15" width="20" height="6" rx="1"/><circle cx="6" cy="6" r="1" fill="currentColor"/><circle cx="6" cy="18" r="1" fill="currentColor"/></svg>
-        </div>
-        <div class="metric-body">
-          <div class="metric-label">Active Servers</div>
-          <div class="metric-value" id="activeServersValue">0</div>
-          <div class="metric-sub" id="serverStatus">All connected</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Latency Chart -->
-    <div class="panel chart-panel">
-      <div class="panel-header">
-        <div class="panel-title-group">
-          <h2 class="panel-title">Latency & Traffic</h2>
-          <span class="panel-subtitle">Calls per minute — last 60 minutes</span>
-        </div>
-        <div class="chart-legend">
-          <span class="legend-item"><span class="legend-dot" style="background:#3b82f6"></span>Calls</span>
-          <span class="legend-item"><span class="legend-dot" style="background:#ef4444"></span>Errors</span>
-          <span class="legend-item"><span class="legend-dot" style="background:#a855f7"></span>P99</span>
-        </div>
-      </div>
-      <div class="chart-container">
-        <canvas id="latencyChart"></canvas>
-      </div>
-    </div>
-
-    <!-- Bottom Row: Top Tools + Recent Activity -->
-    <div class="bottom-row">
-
-      <div class="panel top-tools-panel">
-        <div class="panel-header">
-          <div class="panel-title-group">
-            <h2 class="panel-title">Top Tools</h2>
-            <span class="panel-subtitle">Most called MCP tools</span>
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="logo">
+          <div class="logo-icon">
+            <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
+              <circle cx="16" cy="16" r="8" stroke="#3b82f6" stroke-width="2" />
+              <circle cx="16" cy="16" r="3" fill="#3b82f6" />
+              <line
+                x1="16"
+                y1="4"
+                x2="16"
+                y2="8"
+                stroke="#3b82f6"
+                stroke-width="2"
+                stroke-linecap="round"
+              />
+              <line
+                x1="16"
+                y1="24"
+                x2="16"
+                y2="28"
+                stroke="#3b82f6"
+                stroke-width="2"
+                stroke-linecap="round"
+              />
+              <line
+                x1="4"
+                y1="16"
+                x2="8"
+                y2="16"
+                stroke="#3b82f6"
+                stroke-width="2"
+                stroke-linecap="round"
+              />
+              <line
+                x1="24"
+                y1="16"
+                x2="28"
+                y2="16"
+                stroke="#3b82f6"
+                stroke-width="2"
+                stroke-linecap="round"
+              />
+            </svg>
+          </div>
+          <div class="logo-text">
+            <span class="logo-name">mcp-pulse</span>
+            <span class="logo-tagline">MCP Observability</span>
           </div>
         </div>
-        <div class="tool-list" id="topToolsList">
-          <div class="tool-list-empty">
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#334155" stroke-width="1.5"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
-            <p>No calls yet</p>
+        <div class="connection-status" id="connectionStatus">
+          <span class="status-dot" id="statusDot"></span>
+          <span class="status-text" id="statusText">Connecting...</span>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <button class="nav-item active" data-view="overview">
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <rect x="3" y="3" width="7" height="7" rx="1" />
+            <rect x="14" y="3" width="7" height="7" rx="1" />
+            <rect x="14" y="14" width="7" height="7" rx="1" />
+            <rect x="3" y="14" width="7" height="7" rx="1" />
+          </svg>
+          Overview
+        </button>
+        <button class="nav-item" data-view="calls">
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="M12 2L2 7l10 5 10-5-10-5z" />
+            <path d="M2 17l10 5 10-5" />
+            <path d="M2 12l10 5 10-5" />
+          </svg>
+          Live Calls
+          <span class="nav-badge" id="callsBadge">0</span>
+        </button>
+        <button class="nav-item" data-view="servers">
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <rect x="2" y="3" width="20" height="6" rx="1" />
+            <rect x="2" y="15" width="20" height="6" rx="1" />
+            <circle cx="6" cy="6" r="1" fill="currentColor" />
+            <circle cx="6" cy="18" r="1" fill="currentColor" />
+          </svg>
+          Servers
+          <span class="nav-badge" id="serversBadge">0</span>
+        </button>
+        <button class="nav-item" data-view="alerts">
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9" />
+            <path d="M13.73 21a2 2 0 01-3.46 0" />
+          </svg>
+          Alerts
+          <span class="nav-badge nav-badge-alert" id="alertsBadge">0</span>
+        </button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="uptime-block">
+          <span class="uptime-label">Uptime</span>
+          <span class="uptime-value" id="uptimeValue">--:--:--</span>
+        </div>
+        <div class="version">mcp-pulse v1.0.0</div>
+      </div>
+    </aside>
+
+    <!-- Main content -->
+    <main class="main-content" id="mainContent">
+      <!-- ── Overview View ───────────────────────────────────────────── -->
+      <div class="view view-overview" id="viewOverview">
+        <!-- Metric Cards Row -->
+        <div class="metrics-row">
+          <div class="metric-card" id="metricTotalCalls">
+            <div class="metric-icon metric-icon-calls">
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+              </svg>
+            </div>
+            <div class="metric-body">
+              <div class="metric-label">Total Calls</div>
+              <div class="metric-value" id="totalCallsValue">0</div>
+              <div class="metric-sub" id="callsPerMin">0/min</div>
+            </div>
+          </div>
+
+          <div class="metric-card" id="metricErrorRate">
+            <div class="metric-icon metric-icon-errors">
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <circle cx="12" cy="12" r="10" />
+                <line x1="12" y1="8" x2="12" y2="12" />
+                <line x1="12" y1="16" x2="12.01" y2="16" />
+              </svg>
+            </div>
+            <div class="metric-body">
+              <div class="metric-label">Error Rate</div>
+              <div class="metric-value" id="errorRateValue">0%</div>
+              <div class="metric-sub" id="totalErrorsValue">0 errors</div>
+            </div>
+            <div class="metric-sparkline" id="errorSparkline"></div>
+          </div>
+
+          <div class="metric-card" id="metricLatency">
+            <div class="metric-icon metric-icon-latency">
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <circle cx="12" cy="12" r="10" />
+                <polyline points="12 6 12 12 16 14" />
+              </svg>
+            </div>
+            <div class="metric-body">
+              <div class="metric-label">Avg Latency</div>
+              <div class="metric-value" id="avgLatencyValue">0ms</div>
+              <div class="metric-sub" id="p99Latency">P99: 0ms</div>
+            </div>
+          </div>
+
+          <div class="metric-card" id="metricServers">
+            <div class="metric-icon metric-icon-servers">
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <rect x="2" y="3" width="20" height="6" rx="1" />
+                <rect x="2" y="15" width="20" height="6" rx="1" />
+                <circle cx="6" cy="6" r="1" fill="currentColor" />
+                <circle cx="6" cy="18" r="1" fill="currentColor" />
+              </svg>
+            </div>
+            <div class="metric-body">
+              <div class="metric-label">Active Servers</div>
+              <div class="metric-value" id="activeServersValue">0</div>
+              <div class="metric-sub" id="serverStatus">All connected</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Latency Chart -->
+        <div class="panel chart-panel">
+          <div class="panel-header">
+            <div class="panel-title-group">
+              <h2 class="panel-title">Latency & Traffic</h2>
+              <span class="panel-subtitle">Calls per minute — last 60 minutes</span>
+            </div>
+            <div class="chart-legend">
+              <span class="legend-item"
+                ><span class="legend-dot" style="background: #3b82f6"></span>Calls</span
+              >
+              <span class="legend-item"
+                ><span class="legend-dot" style="background: #ef4444"></span>Errors</span
+              >
+              <span class="legend-item"
+                ><span class="legend-dot" style="background: #a855f7"></span>P99</span
+              >
+            </div>
+          </div>
+          <div class="chart-container">
+            <canvas id="latencyChart"></canvas>
+          </div>
+        </div>
+
+        <!-- Bottom Row: Top Tools + Recent Activity -->
+        <div class="bottom-row">
+          <div class="panel top-tools-panel">
+            <div class="panel-header">
+              <div class="panel-title-group">
+                <h2 class="panel-title">Top Tools</h2>
+                <span class="panel-subtitle">Most called MCP tools</span>
+              </div>
+            </div>
+            <div class="tool-list" id="topToolsList">
+              <div class="tool-list-empty">
+                <svg
+                  width="32"
+                  height="32"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="#334155"
+                  stroke-width="1.5"
+                >
+                  <path d="M12 2L2 7l10 5 10-5-10-5z" />
+                  <path d="M2 17l10 5 10-5" />
+                  <path d="M2 12l10 5 10-5" />
+                </svg>
+                <p>No calls yet</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel recent-activity-panel">
+            <div class="panel-header">
+              <div class="panel-title-group">
+                <h2 class="panel-title">Recent Calls</h2>
+                <span class="panel-subtitle">Latest MCP invocations</span>
+              </div>
+              <button class="btn btn-ghost btn-sm" onclick="App.view('calls')">View all →</button>
+            </div>
+            <div class="recent-calls" id="recentCalls">
+              <div class="recent-calls-empty">
+                <svg
+                  width="32"
+                  height="32"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="#334155"
+                  stroke-width="1.5"
+                >
+                  <circle cx="12" cy="12" r="10" />
+                  <polyline points="12 6 12 12 16 14" />
+                </svg>
+                <p>Waiting for calls...</p>
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
-      <div class="panel recent-activity-panel">
-        <div class="panel-header">
-          <div class="panel-title-group">
-            <h2 class="panel-title">Recent Calls</h2>
-            <span class="panel-subtitle">Latest MCP invocations</span>
+      <!-- ── Live Calls View ─────────────────────────────────────────── -->
+      <div class="view view-calls" id="viewCalls" style="display: none">
+        <div class="view-header">
+          <h1 class="view-title">Live Calls</h1>
+          <div class="view-filters">
+            <select class="filter-select" id="filterServer">
+              <option value="">All Servers</option>
+            </select>
+            <select class="filter-select" id="filterStatus">
+              <option value="">All Status</option>
+              <option value="success">Success</option>
+              <option value="error">Error</option>
+            </select>
+            <input
+              type="text"
+              class="filter-input"
+              id="filterTool"
+              placeholder="Filter by tool..."
+            />
+            <button class="btn btn-ghost btn-sm" onclick="CallsView.export()">Export CSV</button>
           </div>
-          <button class="btn btn-ghost btn-sm" onclick="App.view('calls')">View all →</button>
         </div>
-        <div class="recent-calls" id="recentCalls">
-          <div class="recent-calls-empty">
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#334155" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-            <p>Waiting for calls...</p>
-          </div>
+
+        <div class="calls-table-wrapper">
+          <table class="calls-table">
+            <thead>
+              <tr>
+                <th>Status</th>
+                <th>Time</th>
+                <th>Server</th>
+                <th>Tool</th>
+                <th>Duration</th>
+                <th>Size</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="callsTableBody"></tbody>
+          </table>
+        </div>
+
+        <div class="pagination" id="callsPagination">
+          <button class="btn btn-ghost btn-sm" id="callsPagePrev" onclick="CallsView.prevPage()">
+            ← Prev
+          </button>
+          <span class="pagination-info" id="paginationInfo">Page 1</span>
+          <button class="btn btn-ghost btn-sm" id="callsPageNext" onclick="CallsView.nextPage()">
+            Next →
+          </button>
         </div>
       </div>
 
-    </div>
-  </div>
+      <!-- ── Servers View ───────────────────────────────────────────── -->
+      <div class="view view-servers" id="viewServers" style="display: none">
+        <div class="view-header">
+          <h1 class="view-title">MCP Servers</h1>
+          <span class="view-subtitle" id="serverSubtitle">0 connected</span>
+        </div>
+        <div class="servers-grid" id="serversGrid"></div>
+      </div>
 
-  <!-- ── Live Calls View ─────────────────────────────────────────── -->
-  <div class="view view-calls" id="viewCalls" style="display:none">
-    <div class="view-header">
-      <h1 class="view-title">Live Calls</h1>
-      <div class="view-filters">
-        <select class="filter-select" id="filterServer">
-          <option value="">All Servers</option>
-        </select>
-        <select class="filter-select" id="filterStatus">
-          <option value="">All Status</option>
-          <option value="success">Success</option>
-          <option value="error">Error</option>
-        </select>
-        <input type="text" class="filter-input" id="filterTool" placeholder="Filter by tool...">
-        <button class="btn btn-ghost btn-sm" onclick="CallsView.export()">Export CSV</button>
+      <!-- ── Alerts View ────────────────────────────────────────────── -->
+      <div class="view view-alerts" id="viewAlerts" style="display: none">
+        <div class="view-header">
+          <h1 class="view-title">Alerts</h1>
+          <button class="btn btn-primary" onclick="AlertsView.showConfig()">
+            Configure Alerts
+          </button>
+        </div>
+        <div class="alerts-list" id="alertsList"></div>
+      </div>
+    </main>
+
+    <!-- Call Detail Modal -->
+    <div class="modal-overlay" id="callDetailModal">
+      <div class="modal">
+        <div class="modal-header">
+          <h3 class="modal-title" id="modalTitle">Call Detail</h3>
+          <button class="modal-close" onclick="Modal.close()">×</button>
+        </div>
+        <div class="modal-body" id="modalBody"></div>
       </div>
     </div>
 
-    <div class="calls-table-wrapper">
-      <table class="calls-table">
-        <thead>
-          <tr>
-            <th>Status</th>
-            <th>Time</th>
-            <th>Server</th>
-            <th>Tool</th>
-            <th>Duration</th>
-            <th>Size</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody id="callsTableBody">
-        </tbody>
-      </table>
+    <!-- Alert Config Modal -->
+    <div class="modal-overlay" id="alertConfigModal">
+      <div class="modal">
+        <div class="modal-header">
+          <h3 class="modal-title">Alert Configuration</h3>
+          <button class="modal-close" onclick="AlertsView.closeConfig()">×</button>
+        </div>
+        <div class="modal-body" id="alertConfigBody">
+          <p class="modal-hint">
+            Configure threshold alerts below. Alerts are evaluated every 30 seconds.
+          </p>
+          <div id="alertConfigsList"></div>
+          <button class="btn btn-primary" onclick="AlertsView.addConfig()">+ Add Alert</button>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-ghost" onclick="AlertsView.closeConfig()">Cancel</button>
+          <button class="btn btn-primary" onclick="AlertsView.saveConfig()">
+            Save Configuration
+          </button>
+        </div>
+      </div>
     </div>
 
-    <div class="pagination" id="callsPagination">
-      <button class="btn btn-ghost btn-sm" id="callsPagePrev" onclick="CallsView.prevPage()">← Prev</button>
-      <span class="pagination-info" id="paginationInfo">Page 1</span>
-      <button class="btn btn-ghost btn-sm" id="callsPageNext" onclick="CallsView.nextPage()">Next →</button>
-    </div>
-  </div>
-
-  <!-- ── Servers View ───────────────────────────────────────────── -->
-  <div class="view view-servers" id="viewServers" style="display:none">
-    <div class="view-header">
-      <h1 class="view-title">MCP Servers</h1>
-      <span class="view-subtitle" id="serverSubtitle">0 connected</span>
-    </div>
-    <div class="servers-grid" id="serversGrid"></div>
-  </div>
-
-  <!-- ── Alerts View ────────────────────────────────────────────── -->
-  <div class="view view-alerts" id="viewAlerts" style="display:none">
-    <div class="view-header">
-      <h1 class="view-title">Alerts</h1>
-      <button class="btn btn-primary" onclick="AlertsView.showConfig()">Configure Alerts</button>
-    </div>
-    <div class="alerts-list" id="alertsList"></div>
-  </div>
-
-</main>
-
-<!-- Call Detail Modal -->
-<div class="modal-overlay" id="callDetailModal">
-  <div class="modal">
-    <div class="modal-header">
-      <h3 class="modal-title" id="modalTitle">Call Detail</h3>
-      <button class="modal-close" onclick="Modal.close()">×</button>
-    </div>
-    <div class="modal-body" id="modalBody"></div>
-  </div>
-</div>
-
-<!-- Alert Config Modal -->
-<div class="modal-overlay" id="alertConfigModal">
-  <div class="modal">
-    <div class="modal-header">
-      <h3 class="modal-title">Alert Configuration</h3>
-      <button class="modal-close" onclick="AlertsView.closeConfig()">×</button>
-    </div>
-    <div class="modal-body" id="alertConfigBody">
-      <p class="modal-hint">Configure threshold alerts below. Alerts are evaluated every 30 seconds.</p>
-      <div id="alertConfigsList"></div>
-      <button class="btn btn-primary" onclick="AlertsView.addConfig()">+ Add Alert</button>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-ghost" onclick="AlertsView.closeConfig()">Cancel</button>
-      <button class="btn btn-primary" onclick="AlertsView.saveConfig()">Save Configuration</button>
-    </div>
-  </div>
-</div>
-
-<script src="./js/dashboard.js"></script>
-</body>
+    <script src="./js/dashboard.js"></script>
+  </body>
 </html>
