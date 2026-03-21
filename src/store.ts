@@ -196,9 +196,9 @@ export class PulseStore {
     const now = Date.now()
     const buckets = new Map<number, TimeSeriesPoint>()
 
-    // Initialize buckets
+    // Initialize buckets (inclusive of current minute)
     for (let i = 0; i < windowMinutes; i++) {
-      const ts = new Date(now - (windowMinutes - i) * 60 * 1000)
+      const ts = new Date(now - (windowMinutes - 1 - i) * 60 * 1000)
       const key = Math.floor(ts.getTime() / 60000) * 60000
       buckets.set(key, {
         timestamp: new Date(key).toISOString(),
